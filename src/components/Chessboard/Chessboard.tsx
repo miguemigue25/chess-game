@@ -12,6 +12,7 @@ export interface Piece {
   y: number;
   type: PieceType;
   team: TeamType;
+  enPassant?: boolean;
 }
 
 export enum TeamType {
@@ -153,39 +154,54 @@ export default function Chessboard() {
       if (currentPiece) {
         const validMove = referee.isValidMove(gridX, gridY, x, y, currentPiece.type, currentPiece.team, pieces);
 
-        if (validMove) {
+        const isEnPassantMove = referee.isEnPassantMove(gridX, gridY, x, y, currentPiece.type, currentPiece.team, pieces);
+
+        const pawnDirection = currentPiece.team === TeamType.OUR ? 1 : -1;
+
+        if (isEnPassantMove) {
+          const updatedPieces = pieces.reduce((results, piece) => {
+            if (piece.x === gridX && piece.y === gridY) {
+              piece.enPassant = false;
+              piece.x = x;
+              piece.y = y;
+              results.push(piece);
+            } else if (!(piece.x === x && piece.y === y - pawnDirection)) {
+              if (piece.type === PieceType.PAWN) {
+                piece.enPassant = false;
+              }
+              results.push(piece);
+            }
+
+            return results;
+          },[] as Piece[])
+
+          setPieces(updatedPieces);
+        } else if (validMove) {
           // updates the piece position
           // and if a piece is attacked, removes it
 
           const updatedPieces = pieces.reduce((results, piece) => {
-            if (piece.x === currentPiece.x && piece.y === currentPiece.y) {
+            if (piece.x === gridX && piece.y === gridY) {
+              if (Math.abs(gridY - y) === 2 && piece.type === PieceType.PAWN) {
+                // special move
+                piece.enPassant = true;
+              } else {
+                piece.enPassant = false;
+              }
               piece.x = x;
               piece.y = y;
               results.push(piece);
             } else if (!(piece.x === x && piece.y === y)) {
-              results.push(piece)
+              if (piece.type === PieceType.PAWN) {
+                piece.enPassant = false;
+              }
+              results.push(piece);
             }     
-
             return results;
           }, [] as Piece[]);
 
           setPieces(updatedPieces);
 
-
-          // setPieces((value) => {
-          //   const pieces = value.reduce((results, piece) => {
-          //     if (piece.x === currentPiece.x && piece.y === currentPiece.y) {
-          //       piece.x = x;
-          //       piece.y = y;
-          //       results.push(piece);
-          //     } else if (!(piece.x === x && piece.y === y)) {
-          //       results.push(piece)
-          //     }     
-
-          //     return results;
-          //   }, [] as Piece[]);
-          //   return pieces;
-          // });
         } else {
           // resets the piece position
           activePiece.style.position = "relative";

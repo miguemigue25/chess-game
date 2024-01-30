@@ -29,6 +29,29 @@ export default class Referee {
         }
     }
 
+    isEnPassantMove(px: number, py: number, x: number, y: number, type: PieceType, team: TeamType, boardState: Piece[]) {
+        const pawnDirection = team === TeamType.OUR ? 1 : -1;
+
+        if (type === PieceType.PAWN) {
+            if ((x - px === -1 || x - px === 1) && y - py === pawnDirection) {
+                const piece = boardState.find((p) => p.x === x && p.y === y - pawnDirection && p.enPassant);
+                if (piece) {
+                    return true;                
+               }  
+            }
+        }
+
+        // if the attacking piece is a pawn (Done)
+        // upper left / upper right || bottom left / bottom right (Done)
+        // if a piece is under / above the attacked tile (Done)
+        // if the attacked piece has made an en passant moce in the previous turn (Done)
+
+        // put piece in correct position
+        // remove en oassanted piece
+
+        return false;
+    }
+
     isValidMove(
         px: number, 
         py: number, 
@@ -62,7 +85,7 @@ export default class Referee {
                 }
             }   
             // attack logic    
-            else if (x- px === -1 && y - py === pawnDirection) {
+            else if (x - px === -1 && y - py === pawnDirection) {
                 // attack in upper or bottom left corner
                 console.log("upper / bottom left");
                 if (this.TileIsOccupiedByOpponent(x, y, boardState, team)) {
