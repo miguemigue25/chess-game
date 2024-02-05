@@ -3,7 +3,8 @@ import { bishopMove, kingMove, knightMove, pawnMove, queenMove, rookMove,
     getPossiblePawnMoves,
     getPossibleKnightMoves, 
     getPossibleBishopMoves,
-    getPossibleRookMoves} from "./rules";
+    getPossibleRookMoves,
+    getPossibleQueenMoves} from "./rules";
 
 export default class Referee {
     isEnPassantMove(initialPosition: Position, desiredPosition: Position, type: PieceType, team: TeamType, boardState: Piece[]) {
@@ -53,6 +54,8 @@ export default class Referee {
                 return getPossibleBishopMoves(piece, boardState);
             case PieceType.ROOK:
                 return getPossibleRookMoves(piece, boardState);
+            case PieceType.QUEEN:
+                return getPossibleQueenMoves(piece, boardState);
             default:
                 return [];
         }
