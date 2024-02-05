@@ -32,6 +32,7 @@ export function samePosition(p1: Position, p2: Position) {
     type: PieceType;
     team: TeamType;
     enPassant?: boolean;
+    possibleMoves?: Position[];
   }
 
 export const initialBoardState: Piece[] = [
