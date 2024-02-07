@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { initialBoardState, samePosition, Piece, PieceType, Position, TeamType } from "../../Constants";
+import { initialBoardState, samePosition, PieceType, TeamType } from "../../Constants";
+import { Piece, Position } from "../../models";
 import Chessboard from "../Chessboard/Chessboard";
 import { bishopMove, kingMove, knightMove, pawnMove, queenMove, rookMove, 
     getPossiblePawnMoves,
@@ -40,7 +41,7 @@ export default function Referee() {
                     piece.position.x = destination.x;
                     piece.position.y = destination.y;
                     results.push(piece);
-                } else if (!samePosition(piece.position, {x: destination.x, y: destination.y - pawnDirection})) {
+                } else if (!samePosition(piece.position, new Position(destination.x, destination.y - pawnDirection))) {
                     if (piece.type === PieceType.PAWN) {
                         piece.enPassant = false;
                     }
@@ -65,7 +66,7 @@ export default function Referee() {
                         setPromotionPawn(piece);
                     }
                     results.push(piece);
-                } else if (!samePosition(piece.position, {x: destination.x, y: destination.y})) {
+                } else if (!samePosition(piece.position, new Position(destination.x, destination.y))) {
                     if (piece.type === PieceType.PAWN) {
                         piece.enPassant = false;
                     }

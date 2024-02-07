@@ -1,5 +1,6 @@
 import { reduceEachTrailingCommentRange } from "typescript";
-import { Piece, Position, samePosition, TeamType } from "../../Constants";
+import { samePosition, TeamType } from "../../Constants";
+import { Piece, Position } from "../../models";
 import { tileIsOccupied, tileIsEmptyOrOccupiedByOpponent, tileIsOccupiedByOpponent } from "./GeneralRules";
 
 
@@ -7,7 +8,7 @@ export const bishopMove = (initialPosition: Position, desiredPosition: Position,
     for (let i = 1; i < 8; i++) {
         // up right movement
         if (desiredPosition.x > initialPosition.x && desiredPosition.y > initialPosition.y) {
-            let passedPosition: Position = {x: initialPosition.x + i, y: initialPosition.y + i};
+            let passedPosition = new Position(initialPosition.x + i, initialPosition.y + i);
             // check if the tile is the destination tile
             if (samePosition(passedPosition, desiredPosition)) {
                 // dealing with destination tile
@@ -23,7 +24,7 @@ export const bishopMove = (initialPosition: Position, desiredPosition: Position,
         }
         // bottom right movement
         if (desiredPosition.x > initialPosition.x && desiredPosition.y < initialPosition.y) {
-            let passedPosition: Position = {x: initialPosition.x + i, y: initialPosition.y - i};
+            let passedPosition = new Position(initialPosition.x + i, initialPosition.y - i);
             // check if the tile is the destination tile
             if (samePosition(passedPosition, desiredPosition)) {
                 // dealing with destination tile
@@ -38,7 +39,7 @@ export const bishopMove = (initialPosition: Position, desiredPosition: Position,
         }
         // bottom left movement
         if (desiredPosition.x < initialPosition.x && desiredPosition.y < initialPosition.y) {
-            let passedPosition: Position = {x: initialPosition.x - i, y: initialPosition.y - i};
+            let passedPosition = new Position(initialPosition.x - i, initialPosition.y - i);
             // check if the tile is the destination tile
             if (samePosition(passedPosition, desiredPosition)) {
                 // dealing with destination tile
@@ -53,7 +54,7 @@ export const bishopMove = (initialPosition: Position, desiredPosition: Position,
         }
         // top left movement
         if (desiredPosition.x < initialPosition.x && desiredPosition.y > initialPosition.y) {
-            let passedPosition: Position = {x: initialPosition.x - i, y: initialPosition.y + i};
+            let passedPosition = new Position(initialPosition.x - i, initialPosition.y + i);
             // check if the tile is the destination tile
             if (samePosition(passedPosition, desiredPosition)) {
                 // dealing with destination tile
@@ -75,7 +76,7 @@ export const getPossibleBishopMoves = (bishop: Piece, boardState: Piece[]): Posi
 
     // upper right movement
     for (let i = 1; i < 8; i++) {
-        const destination: Position = { x: bishop.position.x + i, y: bishop.position.y + i};
+        const destination = new Position(bishop.position.x + i, bishop.position.y + i);
 
         if (!tileIsOccupied(destination, boardState)) {
             possibleMoves.push(destination);
@@ -88,7 +89,7 @@ export const getPossibleBishopMoves = (bishop: Piece, boardState: Piece[]): Posi
     }
     // bottom right movement
     for (let i = 1; i < 8; i++) {
-        const destination: Position = { x: bishop.position.x + i, y: bishop.position.y - i};
+        const destination = new Position(bishop.position.x + i, bishop.position.y - i);
 
         if (!tileIsOccupied(destination, boardState)) {
             possibleMoves.push(destination);
@@ -101,7 +102,7 @@ export const getPossibleBishopMoves = (bishop: Piece, boardState: Piece[]): Posi
     }
     // bottom left movement
     for (let i = 1; i < 8; i++) {
-        const destination: Position = { x: bishop.position.x - i, y: bishop.position.y - i};
+        const destination = new Position(bishop.position.x - i, bishop.position.y - i);
 
         if (!tileIsOccupied(destination, boardState)) {
             possibleMoves.push(destination);
@@ -114,7 +115,7 @@ export const getPossibleBishopMoves = (bishop: Piece, boardState: Piece[]): Posi
     }
     // top left movement
     for (let i = 1; i < 8; i++) {
-        const destination: Position = { x: bishop.position.x - i, y: bishop.position.y + i};
+        const destination = new Position (bishop.position.x - i, bishop.position.y + i);
 
         if (!tileIsOccupied(destination, boardState)) {
             possibleMoves.push(destination);
