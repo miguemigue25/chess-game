@@ -2,7 +2,7 @@ import { PieceType, TeamType } from "../Types";
 import { Pawn } from "./Pawn";
 import { Piece } from "./Piece";
 import { Position } from "./Position";
-import { getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves } from "../referee/rules";
+import { getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves, getCastlingMoves } from "../referee/rules";
 
 export class Board {
     pieces: Piece[];
@@ -22,6 +22,13 @@ export class Board {
         for (const piece of this.pieces) {
             piece.possibleMoves = this.getValidMoves(piece, this.pieces)
         }
+        // calculate castling moves
+        for (const king of this.pieces.filter(p => p.isKing)) {
+            if (king.possibleMoves === undefined) continue;
+
+            king.possibleMoves = [...king.possibleMoves, ...getCastlingMoves(king, this.pieces)];
+        }
+
         // check if the current team moves are valid
         this.checkCurrentTeamMoves();
 
@@ -93,6 +100,7 @@ export class Board {
     playMove(enPassantMove: boolean, validMove: boolean, playedPiece: Piece, destination: Position): boolean {
         const pawnDirection = playedPiece.team === TeamType.OUR ? 1 : -1;
 
+        // if the move is a castling move, do this
         if (enPassantMove) {
             this.pieces = this.pieces.reduce((results, piece) => {
                 if (piece.samePiecePosition(playedPiece)) {
@@ -100,6 +108,7 @@ export class Board {
                         (piece as Pawn).enPassant = false;
                     piece.position.x = destination.x;
                     piece.position.y = destination.y;
+                    piece.hasMoved = true;
                     results.push(piece);
                 } else if (!piece.samePosition(new Position(destination.x, destination.y - pawnDirection))) {
                     if (piece.isPawn) {
