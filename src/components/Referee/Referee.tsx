@@ -27,8 +27,15 @@ export default function Referee() {
     }
 
     function playMove(playedPiece: Piece, destination: Position): boolean {
+        if (playedPiece.possibleMoves === undefined) 
+            return false;
+
+        const validMove = playedPiece.possibleMoves?.some(m => m.samePosition(destination));
+        if (!validMove) 
+            return false;
+
         let playedMoveIsValid = false;
-        const validMove = isValidMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
+        // const validMove = isValidMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
         const enPassantMove = isEnPassantMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
 
         // playMove modifies the board thus we need to call setBoard
@@ -37,12 +44,16 @@ export default function Referee() {
             playedMoveIsValid = board.playMove(enPassantMove, validMove, playedPiece, destination);
             return board.clone();
         })
-        // this is fpr promoting a pawn
+        // this is for promoting a pawn
         let promotionRow = (playedPiece.team === TeamType.OUR) ? 7 : 0;
 
         if (destination.y === promotionRow && playedPiece.isPawn) {
             modalRef.current?.classList.remove("hidden");
-            setPromotionPawn(playedPiece);
+            setPromotionPawn((previousPromotionPawn) => {
+                const clonedPlayedPiece = playedPiece.clone();
+                clonedPlayedPiece.position = destination.clone();
+                return clonedPlayedPiece;
+            });
         }
         return playedMoveIsValid;
     }
@@ -95,36 +106,51 @@ export default function Referee() {
             return;
         }
 
-        board.pieces = board.pieces.reduce((results, piece) => {
-            if (piece.samePiecePosition(promotionPawn)) {
-                piece.type = pieceType;
-                const teamType = (piece.team === TeamType.OUR) ? "w" : "b";
-                let image = "";
-                switch (pieceType) {
-                    case PieceType.ROOK: {
-                        image = "rook";
-                        break;
-                    }
-                    case PieceType.BISHOP: {
-                        image = "bishop";
-                        break;
-                    }
-                    case PieceType.KNIGHT: {
-                        image = "knight";
-                        break;
-                    }
-                    case PieceType.QUEEN: {
-                        image = "queen";
-                        break;
-                    }
+        setBoard((previousBoard) => {
+            const clonedBoard = board.clone();
+            clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
+                if (piece.samePiecePosition(promotionPawn)) {
+                    results.push(new Piece(piece.position.clone(), pieceType, piece.team));
+                } else {
+                    results.push(piece);
                 }
-                piece.image = `assets/images/${image}_${teamType}.png`;
-            }
-            results.push(piece);
-            return results;
-        }, [] as Piece[])
+                return results;
+            }, [] as Piece[]);
+            
+            clonedBoard.calculateAllMoves();
+            return clonedBoard;
+        }) 
 
-        updatePossibleMoves();
+        // board.pieces = board.pieces.reduce((results, piece) => {
+        //     if (piece.samePiecePosition(promotionPawn)) {
+        //         piece.type = pieceType;
+        //         const teamType = (piece.team === TeamType.OUR) ? "w" : "b";
+        //         let image = "";
+        //         switch (pieceType) {
+        //             case PieceType.ROOK: {
+        //                 image = "rook";
+        //                 break;
+        //             }
+        //             case PieceType.BISHOP: {
+        //                 image = "bishop";
+        //                 break;
+        //             }
+        //             case PieceType.KNIGHT: {
+        //                 image = "knight";
+        //                 break;
+        //             }
+        //             case PieceType.QUEEN: {
+        //                 image = "queen";
+        //                 break;
+        //             }
+        //         }
+        //         piece.image = `assets/images/${image}_${teamType}.png`;
+        //     }
+        //     results.push(piece);
+        //     return results;
+        // }, [] as Piece[])
+
+        // updatePossibleMoves();
 
         modalRef.current?.classList.add("hidden");
     }
