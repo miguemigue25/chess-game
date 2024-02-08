@@ -6,11 +6,17 @@ import { Pawn } from "../../models/Pawn";
 import { Board } from "../../models/Board";
 import Chessboard from "../Chessboard/Chessboard";
 import { bishopMove, kingMove, knightMove, pawnMove, queenMove, rookMove, 
+    // eslint-disable-next-line
     getPossiblePawnMoves,
-    getPossibleKnightMoves, 
+    // eslint-disable-next-line
+    getPossibleKnightMoves,
+    // eslint-disable-next-line 
     getPossibleBishopMoves,
+    // eslint-disable-next-line
     getPossibleRookMoves,
+    // eslint-disable-next-line
     getPossibleQueenMoves,
+    // eslint-disable-next-line
     getPossibleKingMoves} from "../../referee/rules";
 
 export default function Referee() {
@@ -19,30 +25,32 @@ export default function Referee() {
     const modalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        updatePossibleMoves();
+        board.calculateAllMoves();
     }, []);
 
-    function updatePossibleMoves() {
-        board.calculateAllMoves();
-    }
-
     function playMove(playedPiece: Piece, destination: Position): boolean {
+        // if the playing piece doesn't have any moves return
         if (playedPiece.possibleMoves === undefined) 
             return false;
+        
+        // prevent the inactive team from playing
+        if (playedPiece.team === TeamType.OUR && board.totalTurns % 2 !== 1) return false;
+        if (playedPiece.team === TeamType.OPPONENT && board.totalTurns % 2 !== 0) return false;
 
         const validMove = playedPiece.possibleMoves?.some(m => m.samePosition(destination));
         if (!validMove) 
             return false;
 
         let playedMoveIsValid = false;
-        // const validMove = isValidMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
         const enPassantMove = isEnPassantMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
 
         // playMove modifies the board thus we need to call setBoard
         setBoard((previousBoard) => {
+            const clonedBoard = board.clone();
+            clonedBoard.totalTurns += 1;
             // playing the move
-            playedMoveIsValid = board.playMove(enPassantMove, validMove, playedPiece, destination);
-            return board.clone();
+            playedMoveIsValid = clonedBoard.playMove(enPassantMove, validMove, playedPiece, destination);
+            return clonedBoard;
         })
         // this is for promoting a pawn
         let promotionRow = (playedPiece.team === TeamType.OUR) ? 7 : 0;
@@ -77,6 +85,7 @@ export default function Referee() {
         return false;
     }
 
+    // eslint-disable-next-line
     function isValidMove(initialPosition: Position, desiredPosition: Position, type: PieceType, team: TeamType) {
         let validMove = false;
         switch (type) {
@@ -121,37 +130,6 @@ export default function Referee() {
             return clonedBoard;
         }) 
 
-        // board.pieces = board.pieces.reduce((results, piece) => {
-        //     if (piece.samePiecePosition(promotionPawn)) {
-        //         piece.type = pieceType;
-        //         const teamType = (piece.team === TeamType.OUR) ? "w" : "b";
-        //         let image = "";
-        //         switch (pieceType) {
-        //             case PieceType.ROOK: {
-        //                 image = "rook";
-        //                 break;
-        //             }
-        //             case PieceType.BISHOP: {
-        //                 image = "bishop";
-        //                 break;
-        //             }
-        //             case PieceType.KNIGHT: {
-        //                 image = "knight";
-        //                 break;
-        //             }
-        //             case PieceType.QUEEN: {
-        //                 image = "queen";
-        //                 break;
-        //             }
-        //         }
-        //         piece.image = `assets/images/${image}_${teamType}.png`;
-        //     }
-        //     results.push(piece);
-        //     return results;
-        // }, [] as Piece[])
-
-        // updatePossibleMoves();
-
         modalRef.current?.classList.add("hidden");
     }
 
@@ -160,6 +138,7 @@ export default function Referee() {
     }
     return (
         <>
+            <p style={{ color: "white", fontSize: "24px" }}>{board.totalTurns}</p>
             <div id="pawn-promotion-modal" className="hidden" ref={modalRef}>
                 <div className="modal-body">
                     <img onClick={() => promotePawn(PieceType.ROOK)} src={`/assets/images/rook_${promotionTeamType()}.png`}/>
