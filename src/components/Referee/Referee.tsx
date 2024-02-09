@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { initialBoard } from "../../Constants";
 import { PieceType, TeamType } from "../../Types";
 import { Piece, Position } from "../../models";
@@ -6,27 +6,19 @@ import { Pawn } from "../../models/Pawn";
 import { Board } from "../../models/Board";
 import Chessboard from "../Chessboard/Chessboard";
 import { bishopMove, kingMove, knightMove, pawnMove, queenMove, rookMove, 
-    // eslint-disable-next-line
     getPossiblePawnMoves,
-    // eslint-disable-next-line
-    getPossibleKnightMoves,
-    // eslint-disable-next-line 
+    getPossibleKnightMoves, 
     getPossibleBishopMoves,
-    // eslint-disable-next-line
     getPossibleRookMoves,
-    // eslint-disable-next-line
     getPossibleQueenMoves,
-    // eslint-disable-next-line
     getPossibleKingMoves} from "../../referee/rules";
 
 export default function Referee() {
-    const [board, setBoard] = useState<Board>(initialBoard);
+    const [board, setBoard] = useState<Board>(initialBoard.clone());
     const [promotionPawn, setPromotionPawn] = useState<Piece>();
     const modalRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        board.calculateAllMoves();
-    }, []);
+    const checkmateModalRef = useRef<HTMLDivElement>(null);
 
     function playMove(playedPiece: Piece, destination: Position): boolean {
         // if the playing piece doesn't have any moves return
@@ -50,6 +42,10 @@ export default function Referee() {
             clonedBoard.totalTurns += 1;
             // playing the move
             playedMoveIsValid = clonedBoard.playMove(enPassantMove, validMove, playedPiece, destination);
+
+            if (clonedBoard.winningTeam !== undefined) {
+                checkmateModalRef.current?.classList.remove("hidden");
+            }
             return clonedBoard;
         })
         // this is for promoting a pawn
@@ -136,15 +132,29 @@ export default function Referee() {
     function promotionTeamType() {
         return (promotionPawn?.team === TeamType.OUR) ? "w" : "b";
     }
+
+    function restartGame() {
+        checkmateModalRef.current?.classList.add("hidden");
+        setBoard(initialBoard.clone());
+    }
+
     return (
         <>
-            <p style={{ color: "white", fontSize: "24px" }}>{board.totalTurns}</p>
-            <div id="pawn-promotion-modal" className="hidden" ref={modalRef}>
+            <p style={{ color: "white", fontSize: "24px", textAlign: "center" }}>Total turns: {board.totalTurns}</p>
+            <div className="modal hidden" ref={modalRef}>
                 <div className="modal-body">
                     <img onClick={() => promotePawn(PieceType.ROOK)} src={`/assets/images/rook_${promotionTeamType()}.png`}/>
                     <img onClick={() => promotePawn(PieceType.BISHOP)} src={`/assets/images/bishop_${promotionTeamType()}.png`}/>
                     <img onClick={() => promotePawn(PieceType.KNIGHT)} src={`/assets/images/knight_${promotionTeamType()}.png`}/>
                     <img onClick={() => promotePawn(PieceType.QUEEN)} src={`/assets/images/queen_${promotionTeamType()}.png`}/>
+                </div>
+            </div>
+            <div className="modal hidden" ref={checkmateModalRef}>
+                <div className="modal-body">
+                    <div className="checkmate-body">
+                        <span>The winning team is {board.winningTeam === TeamType.OUR ? "white" : "black"}!</span>
+                        <button onClick={restartGame}>Play Again</button>
+                    </div>
                 </div>
             </div>
             <Chessboard playMove={playMove} pieces={board.pieces} />

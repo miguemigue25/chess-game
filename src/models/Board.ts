@@ -7,6 +7,7 @@ import { getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, g
 export class Board {
     pieces: Piece[];
     totalTurns: number;
+    winningTeam?: TeamType;
 
     constructor(pieces: Piece[], totalTurns: number) {
         this.pieces = pieces;
@@ -36,6 +37,12 @@ export class Board {
         for (const piece of this.pieces.filter(p => p.team !== this.currentTeam)) {
             piece.possibleMoves = [];
         }
+        // check if the playing team still has moves left
+        // otherwise, checkmate!
+        if (this.pieces.filter(p => p.team === this.currentTeam).some(p => p.possibleMoves !== undefined &&
+            p.possibleMoves.length > 0)) return;
+
+        this.winningTeam = (this.currentTeam === TeamType.OUR) ? TeamType.OPPONENT : TeamType.OUR;
     }
 
     checkCurrentTeamMoves() {
@@ -99,8 +106,22 @@ export class Board {
 
     playMove(enPassantMove: boolean, validMove: boolean, playedPiece: Piece, destination: Position): boolean {
         const pawnDirection = playedPiece.team === TeamType.OUR ? 1 : -1;
+        const destinationPiece = this.pieces.find(p => p.samePosition(destination));
 
         // if the move is a castling move, do this
+        if (playedPiece.isKing && destinationPiece?.isRook && destinationPiece.team === playedPiece.team) {
+            const direction = (destinationPiece.position.x - playedPiece.position.x > 0) ? 1: -1;
+            const newKingXPosition = playedPiece.position.x + direction * 2;
+            this.pieces = this.pieces.map(p => {
+                if (p.samePiecePosition(playedPiece)) {
+                    p.position.x = newKingXPosition;
+                } else if (p.samePiecePosition(destinationPiece)) {
+                    p.position.x = newKingXPosition - direction;
+                }
+                return p;
+            });
+        } 
+
         if (enPassantMove) {
             this.pieces = this.pieces.reduce((results, piece) => {
                 if (piece.samePiecePosition(playedPiece)) {
