@@ -7,7 +7,10 @@ import { Board } from "./models/Board";
 export const verticalAxis = ["1", "2", "3", "4", "5", "6", "7", "8"];
 export const horizontalAxis = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-export const gridSize = 100;
+export const gridSize = Math.min(
+    Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.1),
+    100
+);
 
 export const initialBoard: Board = new Board([
   new Piece(new Position(0, 7), PieceType.ROOK, TeamType.OPPONENT, false),

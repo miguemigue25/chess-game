@@ -14,7 +14,9 @@ export default function Tile({number, image, highlight}: Props)  {
         image && "chess-piece-tile"].filter(Boolean).join(' ');
     return (
         <div className={className}>
-            {image && <div style={{backgroundImage: `url(${image})`}} className="chess-piece"></div>}
+            {image && <div className="chess-piece">
+                <img src={image} alt="" style={{width: '100%', height: '100%', objectFit: 'contain'}} />
+            </div>}
         </div>
     );
 }

@@ -35,37 +35,27 @@ export default function Chessboard({playMove, pieces} : Props) {
   function movePiece(e: React.MouseEvent) {
     const chessboard = chessboardRef.current;
     if (activePiece && chessboard) {
-      const minX = chessboard.offsetLeft - 25;
-      const minY = chessboard.offsetTop - 25;
-      const maxX = chessboard.offsetLeft + chessboard.clientWidth - 75;
-      const maxY = chessboard.offsetTop + chessboard.clientHeight - 75;
-      const x = e.clientX - 50;
-      const y = e.clientY - 50;
+      const minX = chessboard.offsetLeft;
+      const minY = chessboard.offsetTop;
+      const maxX = chessboard.offsetLeft + chessboard.clientWidth - gridSize;
+      const maxY = chessboard.offsetTop + chessboard.clientHeight - gridSize;
+      const x = e.clientX - gridSize / 2;
+      const y = e.clientY - gridSize / 2;
       activePiece.style.position = "absolute";
 
-      //If x is smaller than minimum amount
       if (x < minX) {
         activePiece.style.left = `${minX}px`;
-      }
-      //If x is bigger than maximum amount
-      else if (x > maxX) {
+      } else if (x > maxX) {
         activePiece.style.left = `${maxX}px`;
-      }
-      //If x is in the constraints
-      else {
+      } else {
         activePiece.style.left = `${x}px`;
       }
 
-      //If y is smaller than minimum amount
       if (y < minY) {
         activePiece.style.top = `${minY}px`;
-      }
-      //If y is bigger than maximum amount
-      else if (y > maxY) {
+      } else if (y > maxY) {
         activePiece.style.top = `${maxY}px`;
-      }
-      //If y is in the constraints
-      else {
+      } else {
         activePiece.style.top = `${y}px`;
       }
     }

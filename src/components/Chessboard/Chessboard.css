@@ -1,37 +1,41 @@
 #chessboard {
     display: grid;
-    grid-template-columns: repeat(8, 100px);
-    grid-template-rows: repeat(8, 100px);
-    width: 800px;
-    height: 800px;
+    grid-template-columns: repeat(8, minmax(30px, min(10vmin, 100px)));
+    grid-template-rows: repeat(8, minmax(30px, min(10vmin, 100px)));
+    width: min(80vmin, 800px);
+    height: min(80vmin, 800px);
     background-color: blue;
+    margin: 0 auto;
 }
 
 .modal {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    bottom: 0px;
-    left: 0px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
 }
 
 .modal.hidden {
     display: none;
 }
+
 .modal > .modal-body {
     position: absolute;
-    top: calc(50% - 150px);
-    left: calc(50% - 400px);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
     justify-content: space-around;
-    height: 300px;
-    width: 800px;
+    width: min(90vw, 800px);
+    height: min(50vh, 300px);
     background-color: rgba(127, 127, 127, 0.8);
 }
+
 .modal > .modal-body > img {
-    height: 120px;
-    padding: 20px;
+    height: min(120px, 20vmin);
+    padding: min(20px, 3vmin);
     border-radius: 50%;
 }
 
